@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title || 'SkinSense - Professional Skin Care Services' %></title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="<%= typeof description !== 'undefined' ? description : 'Professional skincare treatments and services. Book your appointment today for beautiful, healthy skin.' %>">
+    <meta name="keywords" content="skincare, facial, beauty, dermatology, anti-aging, acne treatment">
+    <meta name="author" content="SkinSense">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="<%= title || 'SkinSense' %>">
+    <meta property="og:description" content="<%= typeof description !== 'undefined' ? description : 'Professional skincare treatments and services' %>">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<%= typeof url !== 'undefined' ? url : 'http://localhost:3000' %>">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+<body>
+    <!-- Modern Navigation -->
+    <nav class="navbar-modern">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="/" class="logo-link">
+                    <div class="logo-icon">
+                        <i class="fas fa-spa"></i>
+                    </div>
+                    <span class="logo-text">SkinSense</span>
+                </a>
+            </div>
+            
+            <div class="nav-menu" id="nav-menu">
+                <div class="nav-links">
+                    <% if (typeof user !== 'undefined' && user) { %>
+                        <% if (user.role === 'admin') { %>
+                            <a href="/admin/dashboard" class="nav-link-modern">
+                                <span class="link-text">Dashboard</span>
+                                <span class="link-indicator"></span>
+                            </a>
+                        <% } else { %>
+                            <a href="/dashboard" class="nav-link-modern">
+                                <span class="link-text">Dashboard</span>
+                                <span class="link-indicator"></span>
+                            </a>
+                        <% } %>
+                    <% } else { %>
+                        <a href="/" class="nav-link-modern">
+                            <span class="link-text">Home</span>
+                            <span class="link-indicator"></span>
+                        </a>
+                    <% } %>
+                    <a href="/services" class="nav-link-modern">
+                        <span class="link-text">Services</span>
+                        <span class="link-indicator"></span>
+                    </a>
+                    <a href="/about" class="nav-link-modern">
+                        <span class="link-text">About</span>
+                        <span class="link-indicator"></span>
+                    </a>
+                    <a href="/contact" class="nav-link-modern">
+                        <span class="link-text">Contact</span>
+                        <span class="link-indicator"></span>
+                    </a>
+                </div>
+                
+                <% if (typeof user !== 'undefined' && user) { %>
+                    <div class="nav-user-section">
+                        <div class="user-info">
+                            <div class="user-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <span class="user-name">Hello, <%= user.firstName %></span>
+                        </div>
+                        <div class="user-actions">
+                            <% if (user.role === 'admin') { %>
+                                <a href="/admin" class="btn-nav btn-admin">
+                                    <i class="fas fa-cog"></i>
+                                    <span>Admin</span>
+                                </a>
+                            <% } %>
+                            <a href="/booking" class="btn-nav btn-primary">
+                                <i class="fas fa-calendar-plus"></i>
+                                <span>Book Now</span>
+                            </a>
+                            <a href="/logout" class="btn-nav btn-outline">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Logout</span>
+                            </a>
+                        </div>
+                    </div>
+                <% } else { %>
+                    <div class="nav-auth-section">
+                        <a href="/login" class="btn-nav btn-outline">
+                            <i class="fas fa-sign-in-alt"></i>
+                            <span>Login</span>
+                        </a>
+                        <a href="/register" class="btn-nav btn-primary">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Register</span>
+                        </a>
+                    </div>
+                <% } %>
+            </div>
+            
+            <!-- Mobile menu button -->
+            <div class="nav-toggle" id="nav-toggle">
+                <div class="hamburger">
+                    <span class="line line-1"></span>
+                    <span class="line line-2"></span>
+                    <span class="line line-3"></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main content starts here -->
+    <main class="main-content">

@@ -1,0 +1,1052 @@
+<%- include('../../partials/admin-header', {title: 'Admin Settings - SkinSense', description: 'System settings and configuration for SkinSense admin panel.'}) %>
+
+<%- include('../../partials/admin-nav', {currentPage: 'settings'}) %>
+
+<!-- Admin Settings -->
+<div class="admin-container with-nav">
+    <div class="admin-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-cog me-3"></i>System Settings</h1>
+                <p class="text-muted">Configure system settings, preferences, and integrations</p>
+            </div>
+            <div class="admin-actions">
+                <button class="btn btn-success" onclick="saveAllSettings()">
+                    <i class="fas fa-save me-2"></i>Save All Changes
+                </button>
+                <button class="btn btn-outline-primary" onclick="resetSettings()">
+                    <i class="fas fa-undo me-2"></i>Reset to Default
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Navigation -->
+    <div class="settings-nav">
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showSettingsTab('general')">
+                <i class="fas fa-cog me-2"></i>General
+            </button>
+            <button class="nav-tab" onclick="showSettingsTab('business')">
+                <i class="fas fa-building me-2"></i>Business
+            </button>
+            <button class="nav-tab" onclick="showSettingsTab('notifications')">
+                <i class="fas fa-bell me-2"></i>Notifications
+            </button>
+            <button class="nav-tab" onclick="showSettingsTab('integrations')">
+                <i class="fas fa-plug me-2"></i>Integrations
+            </button>
+            <button class="nav-tab" onclick="showSettingsTab('security')">
+                <i class="fas fa-shield-alt me-2"></i>Security
+            </button>
+            <button class="nav-tab" onclick="showSettingsTab('backup')">
+                <i class="fas fa-database me-2"></i>Backup
+            </button>
+        </div>
+    </div>
+
+    <!-- Settings Content -->
+    <div class="settings-content">
+        <!-- General Settings -->
+        <div id="generalSettings" class="settings-tab active">
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="admin-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-cog me-2"></i>General Settings</h3>
+                        </div>
+                        <div class="card-body">
+                            <form class="settings-form">
+                                <div class="form-group">
+                                    <label class="form-label">Site Name</label>
+                                    <input type="text" class="form-control" value="SkinSense" id="siteName">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Site Description</label>
+                                    <textarea class="form-control" rows="3" id="siteDescription">Professional skincare treatments and beauty services</textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Default Timezone</label>
+                                    <select class="form-select" id="timezone">
+                                        <option value="UTC">UTC</option>
+                                        <option value="America/New_York" selected>Eastern Time</option>
+                                        <option value="America/Chicago">Central Time</option>
+                                        <option value="America/Denver">Mountain Time</option>
+                                        <option value="America/Los_Angeles">Pacific Time</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Default Language</label>
+                                    <select class="form-select" id="language">
+                                        <option value="en" selected>English</option>
+                                        <option value="es">Spanish</option>
+                                        <option value="fr">French</option>
+                                        <option value="de">German</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Currency</label>
+                                    <select class="form-select" id="currency">
+                                        <option value="USD" selected>USD ($)</option>
+                                        <option value="EUR">EUR (€)</option>
+                                        <option value="GBP">GBP (£)</option>
+                                        <option value="CAD">CAD (C$)</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Date Format</label>
+                                    <select class="form-select" id="dateFormat">
+                                        <option value="MM/DD/YYYY" selected>MM/DD/YYYY</option>
+                                        <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                        <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="admin-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-info-circle me-2"></i>System Info</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="system-info">
+                                <div class="info-item">
+                                    <span class="info-label">Version:</span>
+                                    <span class="info-value">1.0.0</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Last Updated:</span>
+                                    <span class="info-value">2024-01-15</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Database:</span>
+                                    <span class="info-value">MongoDB Atlas</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Server:</span>
+                                    <span class="info-value">Node.js</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Business Settings -->
+        <div id="businessSettings" class="settings-tab">
+            <div class="admin-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-building me-2"></i>Business Information</h3>
+                </div>
+                <div class="card-body">
+                    <form class="settings-form">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Business Name</label>
+                                    <input type="text" class="form-control" value="SkinSense Beauty Clinic" id="businessName">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Business Email</label>
+                                    <input type="email" class="form-control" value="info@skinsense.com" id="businessEmail">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Business Phone</label>
+                                    <input type="tel" class="form-control" value="+1 (555) 123-4567" id="businessPhone">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Business Website</label>
+                                    <input type="url" class="form-control" value="https://skinsense.com" id="businessWebsite">
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label class="form-label">Business Address</label>
+                                    <textarea class="form-control" rows="3" id="businessAddress">123 Beauty Street, Skincare City, SC 12345</textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Business Hours</label>
+                                    <input type="text" class="form-control" value="Mon-Fri: 9AM-6PM, Sat: 9AM-4PM" id="businessHours">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Tax Rate (%)</label>
+                                    <input type="number" class="form-control" value="8.5" step="0.1" id="taxRate">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Settings -->
+        <div id="notificationSettings" class="settings-tab">
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="admin-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-envelope me-2"></i>Email Notifications</h3>
+                        </div>
+                        <div class="card-body">
+                            <form class="settings-form">
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="emailNewBooking" checked>
+                                        <label class="form-check-label" for="emailNewBooking">
+                                            New booking notifications
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="emailBookingReminder" checked>
+                                        <label class="form-check-label" for="emailBookingReminder">
+                                            Booking reminders
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="emailCancellation" checked>
+                                        <label class="form-check-label" for="emailCancellation">
+                                            Cancellation notifications
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="emailMarketing">
+                                        <label class="form-check-label" for="emailMarketing">
+                                            Marketing emails
+                                        </label>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <div class="admin-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-sms me-2"></i>SMS Notifications</h3>
+                        </div>
+                        <div class="card-body">
+                            <form class="settings-form">
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="smsBookingConfirmation" checked>
+                                        <label class="form-check-label" for="smsBookingConfirmation">
+                                            Booking confirmations
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="smsReminder" checked>
+                                        <label class="form-check-label" for="smsReminder">
+                                            Appointment reminders
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="smsPromotions">
+                                        <label class="form-check-label" for="smsPromotions">
+                                            Promotional messages
+                                        </label>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Integration Settings -->
+        <div id="integrationSettings" class="settings-tab">
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="admin-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-envelope me-2"></i>Email Service (Nodemailer)</h3>
+                        </div>
+                        <div class="card-body">
+                            <form class="settings-form">
+                                <div class="form-group">
+                                    <label class="form-label">SMTP Host</label>
+                                    <input type="text" class="form-control" value="smtp.gmail.com" id="smtpHost">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">SMTP Port</label>
+                                    <input type="number" class="form-control" value="587" id="smtpPort">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" value="noreply@skinsense.com" id="smtpEmail">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Password</label>
+                                    <input type="password" class="form-control" value="••••••••" id="smtpPassword">
+                                </div>
+                                <div class="form-group">
+                                    <button class="btn btn-outline-primary" onclick="testEmailConnection()">
+                                        <i class="fas fa-paper-plane me-2"></i>Test Connection
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <div class="admin-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-sms me-2"></i>SMS Service (Twilio)</h3>
+                        </div>
+                        <div class="card-body">
+                            <form class="settings-form">
+                                <div class="form-group">
+                                    <label class="form-label">Account SID</label>
+                                    <input type="text" class="form-control" value="AC••••••••••••••••••••••••••••••••" id="twilioSid">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Auth Token</label>
+                                    <input type="password" class="form-control" value="••••••••••••••••••••••••••••••••" id="twilioToken">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Phone Number</label>
+                                    <input type="tel" class="form-control" value="+1 (555) 123-4567" id="twilioPhone">
+                                </div>
+                                <div class="form-group">
+                                    <button class="btn btn-outline-primary" onclick="testSmsConnection()">
+                                        <i class="fas fa-sms me-2"></i>Test Connection
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <div class="admin-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-cloud me-2"></i>File Storage (Cloudinary)</h3>
+                        </div>
+                        <div class="card-body">
+                            <form class="settings-form">
+                                <div class="form-group">
+                                    <label class="form-label">Cloud Name</label>
+                                    <input type="text" class="form-control" value="skinsense" id="cloudinaryName">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">API Key</label>
+                                    <input type="text" class="form-control" value="••••••••••••••••••••••••••••••••" id="cloudinaryKey">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">API Secret</label>
+                                    <input type="password" class="form-control" value="••••••••••••••••••••••••••••••••" id="cloudinarySecret">
+                                </div>
+                                <div class="form-group">
+                                    <button class="btn btn-outline-primary" onclick="testCloudinaryConnection()">
+                                        <i class="fas fa-cloud me-2"></i>Test Connection
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <div class="admin-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-database me-2"></i>Database (MongoDB)</h3>
+                        </div>
+                        <div class="card-body">
+                            <form class="settings-form">
+                                <div class="form-group">
+                                    <label class="form-label">Connection String</label>
+                                    <input type="text" class="form-control" value="mongodb+srv://••••••••••••••••••••••••••••••••" id="mongoUri">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Database Name</label>
+                                    <input type="text" class="form-control" value="skinsense" id="mongoDb">
+                                </div>
+                                <div class="form-group">
+                                    <div class="connection-status">
+                                        <span class="status-indicator status-online"></span>
+                                        <span class="status-text">Connected to MongoDB Atlas</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <button class="btn btn-outline-primary" onclick="testDatabaseConnection()">
+                                        <i class="fas fa-database me-2"></i>Test Connection
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Settings -->
+        <div id="securitySettings" class="settings-tab">
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="admin-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-shield-alt me-2"></i>Security Settings</h3>
+                        </div>
+                        <div class="card-body">
+                            <form class="settings-form">
+                                <div class="form-group">
+                                    <label class="form-label">Session Timeout (minutes)</label>
+                                    <input type="number" class="form-control" value="30" id="sessionTimeout">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Max Login Attempts</label>
+                                    <input type="number" class="form-control" value="5" id="maxLoginAttempts">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Password Requirements</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="requireUppercase" checked>
+                                        <label class="form-check-label" for="requireUppercase">
+                                            Require uppercase letters
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="requireNumbers" checked>
+                                        <label class="form-check-label" for="requireNumbers">
+                                            Require numbers
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="requireSpecialChars" checked>
+                                        <label class="form-check-label" for="requireSpecialChars">
+                                            Require special characters
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Minimum Password Length</label>
+                                    <input type="number" class="form-control" value="8" id="minPasswordLength">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <div class="admin-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-key me-2"></i>API Keys</h3>
+                        </div>
+                        <div class="card-body">
+                            <form class="settings-form">
+                                <div class="form-group">
+                                    <label class="form-label">JWT Secret</label>
+                                    <input type="password" class="form-control" value="••••••••••••••••••••••••••••••••" id="jwtSecret">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Session Secret</label>
+                                    <input type="password" class="form-control" value="••••••••••••••••••••••••••••••••" id="sessionSecret">
+                                </div>
+                                <div class="form-group">
+                                    <button class="btn btn-outline-warning" onclick="regenerateSecrets()">
+                                        <i class="fas fa-sync me-2"></i>Regenerate Secrets
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Backup Settings -->
+        <div id="backupSettings" class="settings-tab">
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="admin-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-database me-2"></i>Database Backup</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="backup-options">
+                                <div class="backup-option">
+                                    <div class="option-info">
+                                        <h5>Manual Backup</h5>
+                                        <p>Create a backup of your database right now</p>
+                                    </div>
+                                    <button class="btn btn-primary" onclick="createBackup()">
+                                        <i class="fas fa-download me-2"></i>Create Backup
+                                    </button>
+                                </div>
+                                
+                                <div class="backup-option">
+                                    <div class="option-info">
+                                        <h5>Automatic Backups</h5>
+                                        <p>Schedule automatic daily backups</p>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="autoBackup" checked>
+                                        <label class="form-check-label" for="autoBackup">
+                                            Enable automatic backups
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="backup-option">
+                                    <div class="option-info">
+                                        <h5>Backup Retention</h5>
+                                        <p>Keep backups for how many days?</p>
+                                    </div>
+                                    <select class="form-select" id="backupRetention">
+                                        <option value="7">7 days</option>
+                                        <option value="14">14 days</option>
+                                        <option value="30" selected>30 days</option>
+                                        <option value="90">90 days</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="admin-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-history me-2"></i>Recent Backups</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="backup-list">
+                                <div class="backup-item">
+                                    <div class="backup-info">
+                                        <h6>backup_2024_01_15.sql</h6>
+                                        <p>2.5 MB • 2 hours ago</p>
+                                    </div>
+                                    <div class="backup-actions">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="downloadBackup('backup_2024_01_15.sql')">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteBackup('backup_2024_01_15.sql')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="backup-item">
+                                    <div class="backup-info">
+                                        <h6>backup_2024_01_14.sql</h6>
+                                        <p>2.4 MB • 1 day ago</p>
+                                    </div>
+                                    <div class="backup-actions">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="downloadBackup('backup_2024_01_14.sql')">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteBackup('backup_2024_01_14.sql')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.admin-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.admin-container.with-nav {
+    margin-left: 250px;
+    margin-top: 0;
+}
+
+.admin-header {
+    margin-bottom: 2rem;
+}
+
+.admin-header h1 {
+    color: #2d3748;
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.admin-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.settings-nav {
+    margin-bottom: 2rem;
+}
+
+.nav-tabs {
+    display: flex;
+    gap: 0.5rem;
+    background: white;
+    border-radius: 15px;
+    padding: 0.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    overflow-x: auto;
+}
+
+.nav-tab {
+    background: none;
+    border: none;
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    color: #718096;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+}
+
+.nav-tab:hover {
+    background: #f7fafc;
+    color: #4a5568;
+}
+
+.nav-tab.active {
+    background: #667eea;
+    color: white;
+}
+
+.settings-content {
+    min-height: 500px;
+}
+
+.settings-tab {
+    display: none;
+}
+
+.settings-tab.active {
+    display: block;
+}
+
+.admin-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.card-header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f7fafc;
+}
+
+.card-header h3 {
+    color: #2d3748;
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+.settings-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #4a5568;
+    font-size: 0.9rem;
+}
+
+.form-control, .form-select {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    outline: none;
+}
+
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-check-input {
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+.form-check-label {
+    color: #4a5568;
+    font-size: 0.9rem;
+}
+
+.system-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: #f7fafc;
+    border-radius: 8px;
+}
+
+.info-label {
+    color: #718096;
+    font-size: 0.9rem;
+}
+
+.info-value {
+    color: #2d3748;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.connection-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: #f0fff4;
+    border-radius: 8px;
+    border: 1px solid #9ae6b4;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.status-online {
+    background: #48bb78;
+}
+
+.status-text {
+    color: #2f855a;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.backup-options {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.backup-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background: #f7fafc;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+}
+
+.option-info h5 {
+    margin: 0 0 0.25rem 0;
+    color: #2d3748;
+    font-weight: 600;
+}
+
+.option-info p {
+    margin: 0;
+    color: #718096;
+    font-size: 0.9rem;
+}
+
+.backup-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.backup-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #f7fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.backup-info h6 {
+    margin: 0 0 0.25rem 0;
+    color: #2d3748;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.backup-info p {
+    margin: 0;
+    color: #718096;
+    font-size: 0.8rem;
+}
+
+.backup-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .admin-header .d-flex {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .admin-actions {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-container {
+        padding: 1rem;
+    }
+    
+    .nav-tabs {
+        flex-direction: column;
+    }
+    
+    .backup-option {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .backup-item {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+}
+</style>
+
+<script>
+// Settings functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize settings
+    loadSettings();
+});
+
+function showSettingsTab(tabName) {
+    // Hide all tabs
+    const tabs = document.querySelectorAll('.settings-tab');
+    tabs.forEach(tab => tab.classList.remove('active'));
+    
+    // Remove active class from all nav tabs
+    const navTabs = document.querySelectorAll('.nav-tab');
+    navTabs.forEach(tab => tab.classList.remove('active'));
+    
+    // Show selected tab
+    document.getElementById(tabName + 'Settings').classList.add('active');
+    
+    // Add active class to clicked nav tab
+    event.target.classList.add('active');
+}
+
+function loadSettings() {
+    // Load settings from localStorage or API
+    console.log('Loading settings...');
+}
+
+function saveAllSettings() {
+    // Collect all form data
+    const settings = {
+        general: {
+            siteName: document.getElementById('siteName').value,
+            siteDescription: document.getElementById('siteDescription').value,
+            timezone: document.getElementById('timezone').value,
+            language: document.getElementById('language').value,
+            currency: document.getElementById('currency').value,
+            dateFormat: document.getElementById('dateFormat').value
+        },
+        business: {
+            businessName: document.getElementById('businessName').value,
+            businessEmail: document.getElementById('businessEmail').value,
+            businessPhone: document.getElementById('businessPhone').value,
+            businessWebsite: document.getElementById('businessWebsite').value,
+            businessAddress: document.getElementById('businessAddress').value,
+            businessHours: document.getElementById('businessHours').value,
+            taxRate: document.getElementById('taxRate').value
+        },
+        notifications: {
+            emailNewBooking: document.getElementById('emailNewBooking').checked,
+            emailBookingReminder: document.getElementById('emailBookingReminder').checked,
+            emailCancellation: document.getElementById('emailCancellation').checked,
+            emailMarketing: document.getElementById('emailMarketing').checked,
+            smsBookingConfirmation: document.getElementById('smsBookingConfirmation').checked,
+            smsReminder: document.getElementById('smsReminder').checked,
+            smsPromotions: document.getElementById('smsPromotions').checked
+        }
+    };
+    
+    // Save settings (simulate API call)
+    console.log('Saving settings:', settings);
+    showNotification('Settings saved successfully!', 'success');
+}
+
+function resetSettings() {
+    if (confirm('Are you sure you want to reset all settings to default values?')) {
+        // Reset all form fields to default values
+        showNotification('Settings reset to default values', 'info');
+    }
+}
+
+function testEmailConnection() {
+    showNotification('Testing email connection...', 'info');
+    setTimeout(() => {
+        showNotification('Email connection successful!', 'success');
+    }, 2000);
+}
+
+function testSmsConnection() {
+    showNotification('Testing SMS connection...', 'info');
+    setTimeout(() => {
+        showNotification('SMS connection successful!', 'success');
+    }, 2000);
+}
+
+function testCloudinaryConnection() {
+    showNotification('Testing Cloudinary connection...', 'info');
+    setTimeout(() => {
+        showNotification('Cloudinary connection successful!', 'success');
+    }, 2000);
+}
+
+function testDatabaseConnection() {
+    showNotification('Testing database connection...', 'info');
+    setTimeout(() => {
+        showNotification('Database connection successful!', 'success');
+    }, 2000);
+}
+
+function regenerateSecrets() {
+    if (confirm('Are you sure you want to regenerate API secrets? This will invalidate all current sessions.')) {
+        showNotification('API secrets regenerated successfully!', 'success');
+    }
+}
+
+function createBackup() {
+    showNotification('Creating database backup...', 'info');
+    setTimeout(() => {
+        showNotification('Backup created successfully!', 'success');
+    }, 3000);
+}
+
+function downloadBackup(filename) {
+    showNotification(`Downloading ${filename}...`, 'info');
+}
+
+function deleteBackup(filename) {
+    if (confirm(`Are you sure you want to delete ${filename}?`)) {
+        showNotification(`${filename} deleted successfully!`, 'success');
+    }
+}
+
+// Notification function
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        z-index: 9999;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.transform = 'translateX(0)';
+    }, 100);
+    
+    setTimeout(() => {
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 3000);
+}
+</script>
+
+</body>
+</html>

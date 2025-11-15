@@ -1,0 +1,440 @@
+<%- include('../partials/header', {title: 'Our Services', description: 'Discover our comprehensive range of professional skincare treatments designed to address all your skin concerns.'}) %>
+
+<!-- Page Header -->
+<section class="services-hero py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <div class="hero-badge mb-3">
+                    <i class="fas fa-spa me-2"></i>
+                    Professional Skincare Services
+                </div>
+                <h1 class="hero-title mb-4">
+                    <span class="title-line-1">Transform Your Skin</span>
+                    <span class="title-line-2">With Expert Care</span>
+                </h1>
+                <p class="hero-subtitle mb-4">
+                    Discover our comprehensive range of professional skincare treatments designed to address all your skin concerns and help you achieve healthy, radiant skin.
+                </p>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">50+</div>
+                        <div class="stat-label">Treatments</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">1000+</div>
+                        <div class="stat-label">Happy Clients</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">5★</div>
+                        <div class="stat-label">Rating</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Services Section -->
+<section class="services-section py-5">
+    <div class="container">
+        <!-- Filters -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="services-filters">
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <a href="/services" class="btn <%= !selectedCategory ? 'btn-primary' : 'btn-outline-primary' %> btn-sm">
+                            All Services
+                        </a>
+                        <% categories.forEach(category => { %>
+                            <a href="/services?category=<%= category %>" 
+                               class="btn <%= selectedCategory === category ? 'btn-primary' : 'btn-outline-primary' %> btn-sm">
+                                <%= category.charAt(0).toUpperCase() + category.slice(1).replace('-', ' ') %>
+                            </a>
+                        <% }) %>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Actions -->
+        <% if (locals.user && locals.user.role === 'admin') { %>
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="admin-actions-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-1"><i class="fas fa-cog me-2"></i>Admin Panel</h5>
+                                <p class="text-muted mb-0">Manage your services and treatments</p>
+                            </div>
+                            <div class="admin-buttons">
+                                <a href="/admin/services/new" class="btn btn-success me-2">
+                                    <i class="fas fa-plus me-2"></i>Add New Service
+                                </a>
+                                <a href="/admin/services" class="btn btn-outline-primary">
+                                    <i class="fas fa-list me-2"></i>Manage All
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+
+        <!-- Services Grid -->
+        <div class="row g-4">
+            <% if (services && services.length > 0) { %>
+                <% services.forEach(service => { %>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="service-card-modern h-100">
+                            <div class="service-image-container">
+                                <div class="service-image-placeholder">
+                                    <i class="fas fa-spa"></i>
+                                </div>
+                                <div class="service-badges">
+                                    <% if (service.isPopular) { %>
+                                        <span class="badge-modern badge-popular">
+                                            <i class="fas fa-fire me-1"></i>Popular
+                                        </span>
+                                    <% } %>
+                                    <% if (service.isFeatured) { %>
+                                        <span class="badge-modern badge-featured">
+                                            <i class="fas fa-star me-1"></i>Featured
+                                        </span>
+                                    <% } %>
+                                </div>
+                                <div class="service-overlay">
+                                    <div class="overlay-content">
+                                        <a href="/services/<%= service._id %>" class="btn-overlay btn-view">
+                                            <i class="fas fa-eye"></i>
+                                            <span>View Details</span>
+                                        </a>
+                                        <% if (locals.user) { %>
+                                            <a href="/booking?service=<%= service._id %>" class="btn-overlay btn-book">
+                                                <i class="fas fa-calendar-plus"></i>
+                                                <span>Book Now</span>
+                                            </a>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="service-content">
+                                <div class="service-header">
+                                    <h5 class="service-title">
+                                        <a href="/services/<%= service._id %>" class="title-link">
+                                            <%= service.name %>
+                                        </a>
+                                    </h5>
+                                    <div class="service-price">
+                                        <span class="price-currency">$</span>
+                                        <span class="price-amount"><%= service.price %></span>
+                                    </div>
+                                </div>
+                                
+                                <p class="service-description">
+                                    <%= service.shortDescription %>
+                                </p>
+                                
+                                <div class="service-meta">
+                                    <div class="meta-item">
+                                        <i class="fas fa-clock"></i>
+                                        <span><%= service.duration || 60 %> min</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <div class="service-rating">
+                                            <% for(let i = 1; i <= 5; i++) { %>
+                                                <i class="fas fa-star <%= i <= (service.rating?.average || 4.5) ? 'star-filled' : 'star-empty' %>"></i>
+                                            <% } %>
+                                            <span class="rating-count">(<%= service.rating?.count || 0 %>)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Service Benefits -->
+                                <% if (service.benefits && service.benefits.length > 0) { %>
+                                    <div class="service-benefits">
+                                        <h6 class="benefits-title">Key Benefits:</h6>
+                                        <ul class="benefits-list">
+                                            <% service.benefits.slice(0, 3).forEach(benefit => { %>
+                                                <li>
+                                                    <i class="fas fa-check"></i>
+                                                    <span><%= benefit %></span>
+                                                </li>
+                                            <% }) %>
+                                        </ul>
+                                    </div>
+                                <% } %>
+                                
+                                <!-- Skin Types -->
+                                <% if (service.skinTypes && service.skinTypes.length > 0) { %>
+                                    <div class="service-skin-types">
+                                        <h6 class="skin-types-title">Suitable for:</h6>
+                                        <div class="skin-types-tags">
+                                            <% service.skinTypes.forEach(type => { %>
+                                                <span class="skin-type-tag">
+                                                    <%= type.charAt(0).toUpperCase() + type.slice(1) %>
+                                                </span>
+                                            <% }) %>
+                                        </div>
+                                    </div>
+                                <% } %>
+                                
+                                <div class="service-actions">
+                                    <a href="/services/<%= service._id %>" class="btn-service btn-learn">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        Learn More
+                                    </a>
+                                    <% if (locals.user) { %>
+                                        <a href="/booking?service=<%= service._id %>" class="btn-service btn-book-primary">
+                                            <i class="fas fa-calendar-plus me-2"></i>
+                                            Book Now
+                                        </a>
+                                    <% } else { %>
+                                        <a href="/register" class="btn-service btn-book-primary">
+                                            <i class="fas fa-user-plus me-2"></i>
+                                            Register to Book
+                                        </a>
+                                    <% } %>
+                                </div>
+
+                                <!-- Admin Actions -->
+                                <% if (locals.user && locals.user.role === 'admin') { %>
+                                    <div class="admin-service-actions">
+                                        <a href="/admin/services/<%= service._id %>/edit" class="btn-admin-edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button class="btn-admin-delete" onclick="deleteService('<%= service._id %>')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">No services found</h4>
+                        <p class="text-muted">
+                            <% if (selectedCategory) { %>
+                                No services available in this category at the moment.
+                            <% } else { %>
+                                We're currently updating our services. Please check back soon.
+                            <% } %>
+                        </p>
+                        <a href="/services" class="btn btn-primary">View All Services</a>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h3 class="mb-3">Need Help Choosing the Right Treatment?</h3>
+                <p class="mb-0">
+                    Our skincare experts are here to help you select the perfect treatment for your skin type and concerns. 
+                    Book a consultation today!
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                <% if (locals.user) { %>
+                    <a href="/booking?service=consultation" class="btn btn-light btn-lg">
+                        <i class="fas fa-user-md me-2"></i>Book Consultation
+                    </a>
+                <% } else { %>
+                    <a href="/contact" class="btn btn-light btn-lg">
+                        <i class="fas fa-phone me-2"></i>Contact Us
+                    </a>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="faq-section py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="text-center mb-5">
+                    <h2 class="section-title">Frequently Asked Questions</h2>
+                    <p class="section-subtitle text-muted">
+                        Common questions about our services and treatments
+                    </p>
+                </div>
+                
+                <div class="accordion" id="servicesFAQ">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq1">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1">
+                                How do I choose the right treatment for my skin?
+                            </button>
+                        </h2>
+                        <div id="collapse1" class="accordion-collapse collapse show" data-bs-parent="#servicesFAQ">
+                            <div class="accordion-body">
+                                We recommend starting with a skin consultation where our experts will assess your skin type, 
+                                concerns, and goals to create a personalized treatment plan that's perfect for you.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq2">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2">
+                                Are your treatments safe?
+                            </button>
+                        </h2>
+                        <div id="collapse2" class="accordion-collapse collapse" data-bs-parent="#servicesFAQ">
+                            <div class="accordion-body">
+                                Yes, all our treatments are performed by licensed professionals using FDA-approved equipment and 
+                                high-quality products. We follow strict safety and hygiene protocols to ensure your safety.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq3">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3">
+                                How often should I get treatments?
+                            </button>
+                        </h2>
+                        <div id="collapse3" class="accordion-collapse collapse" data-bs-parent="#servicesFAQ">
+                            <div class="accordion-body">
+                                Treatment frequency depends on your skin type, concerns, and the specific treatment. During your 
+                                consultation, we'll create a personalized schedule that optimizes your results.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq4">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4">
+                                What should I expect during my first visit?
+                            </button>
+                        </h2>
+                        <div id="collapse4" class="accordion-collapse collapse" data-bs-parent="#servicesFAQ">
+                            <div class="accordion-body">
+                                Your first visit includes a thorough skin analysis, discussion of your goals and concerns, 
+                                and a personalized treatment recommendation. We'll also explain the process and answer any questions.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+// Services page functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // Service card hover effects
+    document.querySelectorAll('.service-card-modern').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-10px)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+
+    // Smooth scroll to services on page load if hash exists
+    if (window.location.hash) {
+        const target = document.querySelector(window.location.hash);
+        if (target) {
+            setTimeout(() => {
+                target.scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+        }
+    }
+});
+
+// Admin function to delete service
+function deleteService(serviceId) {
+    if (confirm('Are you sure you want to delete this service? This action cannot be undone.')) {
+        fetch(`/api/services/${serviceId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success message
+                showNotification('Service deleted successfully!', 'success');
+                // Reload the page after a short delay
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } else {
+                showNotification('Failed to delete service: ' + (data.message || 'Unknown error'), 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Failed to delete service. Please try again.', 'error');
+        });
+    }
+}
+
+// Notification function
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    // Add styles
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        z-index: 9999;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+    `;
+    
+    // Add to page
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+        notification.style.transform = 'translateX(0)';
+    }, 100);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 3000);
+}
+</script>
+
+<%- include('../partials/footer') %>
