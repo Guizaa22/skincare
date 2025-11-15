@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title || 'Admin Dashboard - SkinSense' %></title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="<%= typeof description !== 'undefined' ? description : 'Admin dashboard for managing SkinSense operations.' %>">
+    <meta name="keywords" content="admin, dashboard, skincare, management">
+    <meta name="author" content="SkinSense">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+        }
+        
+        .admin-top-bar {
+            position: fixed;
+            top: 0;
+            left: 250px;
+            right: 0;
+            height: 60px;
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            z-index: 999;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .admin-top-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .admin-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #667eea;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .admin-logo i {
+            font-size: 1.5rem;
+        }
+        
+        .admin-top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .admin-user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: #f7fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .admin-user-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+        }
+        
+        .admin-user-details {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .admin-user-name {
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #2d3748;
+        }
+        
+        .admin-user-role {
+            font-size: 0.75rem;
+            color: #667eea;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        
+        .admin-quick-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .admin-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .admin-btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .admin-btn-primary:hover {
+            background: #5a67d8;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .admin-btn-outline {
+            background: transparent;
+            color: #667eea;
+            border: 1px solid #667eea;
+        }
+        
+        .admin-btn-outline:hover {
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .admin-btn-danger {
+            background: #e53e3e;
+            color: white;
+        }
+        
+        .admin-btn-danger:hover {
+            background: #c53030;
+            color: white;
+            text-decoration: none;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .admin-top-bar {
+                left: 0;
+                padding: 0 1rem;
+            }
+            
+            .admin-user-details {
+                display: none;
+            }
+            
+            .admin-quick-actions {
+                gap: 0.25rem;
+            }
+            
+            .admin-btn {
+                padding: 0.5rem;
+                font-size: 0.8rem;
+            }
+            
+            .admin-btn span {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Admin Top Bar -->
+    <div class="admin-top-bar">
+        <div class="admin-top-bar-left">
+            <div class="admin-logo">
+                <i class="fas fa-spa"></i>
+                <span>SkinSense Admin</span>
+            </div>
+        </div>
+        
+        <div class="admin-top-bar-right">
+            <% if (typeof user !== 'undefined' && user) { %>
+                <div class="admin-user-info">
+                    <div class="admin-user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="admin-user-details">
+                        <div class="admin-user-name"><%= user.firstName %> <%= user.lastName %></div>
+                        <div class="admin-user-role"><%= user.role %></div>
+                    </div>
+                </div>
+            <% } %>
+            
+            <div class="admin-quick-actions">
+                <a href="/admin/dashboard" class="admin-btn admin-btn-outline">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/" class="admin-btn admin-btn-outline" onclick="return confirm('Are you sure you want to leave the admin panel?')">
+                    <i class="fas fa-home"></i>
+                    <span>Public Site</span>
+                </a>
+                <a href="/logout" class="admin-btn admin-btn-danger" onclick="return confirm('Are you sure you want to logout?')">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main content starts here -->
+    <main class="main-content" style="margin-top: 60px;">

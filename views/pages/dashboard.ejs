@@ -1,0 +1,428 @@
+<%- include('../partials/header') %>
+
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Welcome back, <%= user.firstName %>!</h1>
+        <p>Manage your appointments and profile</p>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- Quick Actions -->
+        <div class="dashboard-card quick-actions">
+            <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+            <div class="action-buttons">
+                <a href="/booking" class="btn btn-primary">
+                    <i class="fas fa-calendar-plus"></i>
+                    Book Appointment
+                </a>
+                <a href="/services" class="btn btn-outline">
+                    <i class="fas fa-list"></i>
+                    View Services
+                </a>
+                <a href="/profile" class="btn btn-outline">
+                    <i class="fas fa-user-edit"></i>
+                    Edit Profile
+                </a>
+            </div>
+        </div>
+
+        <!-- Upcoming Bookings -->
+        <div class="dashboard-card bookings">
+            <h3><i class="fas fa-calendar-alt"></i> Upcoming Appointments</h3>
+            <% if (typeof upcomingBookings !== 'undefined' && upcomingBookings && upcomingBookings.length > 0) { %>
+                <div class="booking-list">
+                    <% upcomingBookings.slice(0, 3).forEach(booking => { %>
+                    <div class="booking-item">
+                        <div class="booking-info">
+                            <h4><%= booking.service.name %></h4>
+                            <p><i class="fas fa-calendar"></i> <%= new Date(booking.appointmentDate).toLocaleDateString() %></p>
+                            <p><i class="fas fa-clock"></i> <%= booking.appointmentTime %></p>
+                            <p><i class="fas fa-dollar-sign"></i> $<%= booking.service.price %></p>
+                        </div>
+                        <div class="booking-status">
+                            <span class="status <%= booking.status %>"><%= booking.status %></span>
+                        </div>
+                    </div>
+                    <% }) %>
+                </div>
+                <a href="/bookings" class="view-all-link">View All Appointments</a>
+            <% } else { %>
+                <div class="empty-state">
+                    <i class="fas fa-calendar-times"></i>
+                    <p>No upcoming appointments</p>
+                    <a href="/booking" class="btn btn-primary">Book Your First Appointment</a>
+                </div>
+            <% } %>
+        </div>
+
+        <!-- Recent Completed Bookings -->
+        <div class="dashboard-card completed-bookings">
+            <h3><i class="fas fa-check-circle"></i> Recent Completed Services</h3>
+            <% if (typeof completedBookings !== 'undefined' && completedBookings && completedBookings.length > 0) { %>
+                <div class="booking-list">
+                    <% completedBookings.slice(0, 3).forEach(booking => { %>
+                    <div class="booking-item">
+                        <div class="booking-info">
+                            <h4><%= booking.service.name %></h4>
+                            <p><i class="fas fa-calendar"></i> <%= new Date(booking.appointmentDate).toLocaleDateString() %></p>
+                            <p><i class="fas fa-clock"></i> <%= booking.appointmentTime %></p>
+                        </div>
+                        <div class="booking-status">
+                            <span class="status completed">Completed</span>
+                        </div>
+                    </div>
+                    <% }) %>
+                </div>
+            <% } else { %>
+                <div class="empty-state">
+                    <i class="fas fa-spa"></i>
+                    <p>No completed services yet</p>
+                </div>
+            <% } %>
+        </div>
+
+        <!-- Profile Summary -->
+        <div class="dashboard-card profile-summary">
+            <h3><i class="fas fa-user"></i> Profile Summary</h3>
+            <div class="profile-info">
+                <div class="profile-avatar">
+                    <% if (user.avatar) { %>
+                        <img src="<%= user.avatar %>" alt="Profile Avatar">
+                    <% } else { %>
+                        <div class="avatar-placeholder">
+                            <%= user.firstName.charAt(0) %><%= user.lastName.charAt(0) %>
+                        </div>
+                    <% } %>
+                </div>
+                <div class="profile-details">
+                    <h4><%= user.firstName %> <%= user.lastName %></h4>
+                    <p><i class="fas fa-envelope"></i> <%= user.email %></p>
+                    <% if (user.phone) { %>
+                        <p><i class="fas fa-phone"></i> <%= user.phone %></p>
+                    <% } %>
+                    <div class="verification-status">
+                        <% if (user.isEmailVerified) { %>
+                            <span class="verified"><i class="fas fa-check-circle"></i> Email Verified</span>
+                        <% } else { %>
+                            <span class="unverified"><i class="fas fa-exclamation-circle"></i> Email Not Verified</span>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+            <a href="/profile" class="btn btn-outline btn-full">Update Profile</a>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="dashboard-card recommendations">
+            <h3><i class="fas fa-star"></i> Recommended for You</h3>
+            <% if (typeof recommendedServices !== 'undefined' && recommendedServices && recommendedServices.length > 0) { %>
+                <div class="service-recommendations">
+                    <% recommendedServices.slice(0, 2).forEach(service => { %>
+                    <div class="service-card">
+                        <h4><%= service.name %></h4>
+                        <p><%= service.description.substring(0, 80) %>...</p>
+                        <div class="service-price">$<%= service.price %></div>
+                        <a href="/booking?service=<%= service._id %>" class="btn btn-sm btn-primary">Book Now</a>
+                    </div>
+                    <% }) %>
+                </div>
+            <% } else { %>
+                <p>Based on your skin type and concerns, we'll recommend personalized treatments.</p>
+                <a href="/services" class="btn btn-outline">Explore Services</a>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<style>
+.dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.dashboard-header h1 {
+    color: #333;
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.dashboard-header p {
+    color: #666;
+    font-size: 1.1rem;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.dashboard-card {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    border: 1px solid #e2e8f0;
+}
+
+.dashboard-card h3 {
+    color: #333;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dashboard-card h3 i {
+    color: #667eea;
+}
+
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.btn {
+    padding: 0.875rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s;
+    text-decoration: none;
+    justify-content: center;
+    text-align: center;
+}
+
+.btn-primary {
+    background: #667eea;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #5a67d8;
+    transform: translateY(-1px);
+}
+
+.btn-outline {
+    background: transparent;
+    color: #667eea;
+    border: 2px solid #667eea;
+}
+
+.btn-outline:hover {
+    background: #667eea;
+    color: white;
+}
+
+.btn-full {
+    width: 100%;
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+.booking-list {
+    margin-bottom: 1rem;
+}
+
+.booking-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+}
+
+.booking-info h4 {
+    margin: 0 0 0.5rem 0;
+    color: #333;
+}
+
+.booking-info p {
+    margin: 0.25rem 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.booking-info i {
+    margin-right: 0.25rem;
+    color: #999;
+}
+
+.status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.status.pending {
+    background: #fef3cd;
+    color: #b08800;
+}
+
+.status.confirmed {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.status.completed {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status.cancelled {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.view-all-link {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.view-all-link:hover {
+    text-decoration: underline;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 2rem 0;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: #ccc;
+    margin-bottom: 1rem;
+}
+
+.empty-state p {
+    color: #666;
+    margin-bottom: 1rem;
+}
+
+.profile-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.profile-avatar img,
+.avatar-placeholder {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+}
+
+.avatar-placeholder {
+    background: #667eea;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+.profile-details h4 {
+    margin: 0 0 0.5rem 0;
+    color: #333;
+}
+
+.profile-details p {
+    margin: 0.25rem 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.profile-details i {
+    margin-right: 0.25rem;
+    color: #999;
+    width: 16px;
+}
+
+.verification-status {
+    margin-top: 0.5rem;
+}
+
+.verified {
+    color: #28a745;
+    font-size: 0.8rem;
+}
+
+.unverified {
+    color: #dc3545;
+    font-size: 0.8rem;
+}
+
+.service-recommendations {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.service-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.service-card h4 {
+    margin: 0 0 0.5rem 0;
+    color: #333;
+}
+
+.service-card p {
+    margin: 0 0 0.5rem 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.service-price {
+    font-weight: 600;
+    color: #667eea;
+    margin-bottom: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 1rem;
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .booking-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .profile-info {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+</style>
+
+<%- include('../partials/footer') %>

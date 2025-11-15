@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - SkinSense</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .error-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            text-align: center;
+            padding: 2rem;
+        }
+        .error-code {
+            font-size: 6rem;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 1rem;
+        }
+        .error-message {
+            font-size: 1.5rem;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+        .error-details {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            max-width: 600px;
+        }
+        .error-details ul {
+            text-align: left;
+            margin: 0;
+            padding-left: 1.5rem;
+        }
+        .back-button {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 1rem;
+            transition: background-color 0.3s;
+        }
+        .back-button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <%- include('../partials/header') %>
+    
+    <main class="error-container">
+        <div class="error-code"><%= statusCode || 500 %></div>
+        <div class="error-message"><%= message || 'An unexpected error occurred' %></div>
+        
+        <% if (typeof details !== 'undefined' && details && details.length > 0) { %>
+        <div class="error-details">
+            <h4>Details:</h4>
+            <ul>
+                <% details.forEach(detail => { %>
+                <li><%= detail %></li>
+                <% }) %>
+            </ul>
+        </div>
+        <% } %>
+        
+        <a href="/" class="back-button">← Back to Home</a>
+    </main>
+    
+    <%- include('../partials/footer') %>
+</body>
+</html>

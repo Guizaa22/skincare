@@ -1,0 +1,1003 @@
+<%- include('../../partials/admin-header', {title: 'Manage Users - SkinSense', description: 'Admin panel for managing users and clients.'}) %>
+
+<%- include('../../partials/admin-nav', {currentPage: 'users'}) %>
+
+<!-- Admin Users Management -->
+<div class="admin-container with-nav">
+    <div class="admin-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-users me-3"></i>Manage Users</h1>
+                <p class="text-muted">View and manage all users, clients, and admin accounts</p>
+            </div>
+            <div class="admin-actions">
+                <a href="/admin/users/new" class="btn btn-success">
+                    <i class="fas fa-user-plus me-2"></i>Add User
+                </a>
+                <button class="btn btn-outline-primary" onclick="exportUsers()">
+                    <i class="fas fa-download me-2"></i>Export
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Statistics -->
+    <div class="user-stats">
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card stat-primary">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="totalUsers">0</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card stat-success">
+                    <div class="stat-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="totalClients">0</div>
+                        <div class="stat-label">Clients</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card stat-warning">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="totalAdmins">0</div>
+                        <div class="stat-label">Admins</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card stat-info">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="activeUsers">0</div>
+                        <div class="stat-label">Active Users</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="filters-section">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="filter-group">
+                    <label class="filter-label">Search Users</label>
+                    <div class="search-box">
+                        <input type="text" id="userSearch" placeholder="Search by name, email..." class="form-control">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="filter-group">
+                    <label class="filter-label">Role</label>
+                    <select id="roleFilter" class="form-select">
+                        <option value="">All Roles</option>
+                        <option value="client">Client</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="filter-group">
+                    <label class="filter-label">Status</label>
+                    <select id="statusFilter" class="form-select">
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="suspended">Suspended</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="filter-group">
+                    <label class="filter-label">Join Date</label>
+                    <select id="dateFilter" class="form-select">
+                        <option value="">All Time</option>
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="filter-group">
+                    <label class="filter-label">&nbsp;</label>
+                    <button class="btn btn-primary w-100" onclick="applyFilters()">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="users-section">
+        <div class="admin-card">
+            <div class="card-header">
+                <h3><i class="fas fa-list me-2"></i>All Users</h3>
+                <div class="card-actions">
+                    <div class="view-options">
+                        <button class="btn btn-sm btn-outline-primary active" onclick="toggleView('table')">
+                            <i class="fas fa-table"></i> Table
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary" onclick="toggleView('cards')">
+                            <i class="fas fa-th-large"></i> Cards
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Table View -->
+                <div id="tableView" class="view-content">
+                    <div class="users-table-container">
+                        <table class="table users-table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <input type="checkbox" id="selectAllUsers" onchange="toggleSelectAllUsers()">
+                                    </th>
+                                    <th>User</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Join Date</th>
+                                    <th>Last Login</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- Users will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Cards View -->
+                <div id="cardsView" class="view-content" style="display: none;">
+                    <div class="users-cards-grid" id="usersCardsGrid">
+                        <!-- User cards will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Actions -->
+    <div class="bulk-actions" id="bulkUserActions" style="display: none;">
+        <div class="bulk-actions-content">
+            <span class="selected-count">0 users selected</span>
+            <div class="bulk-buttons">
+                <button class="btn btn-success btn-sm" onclick="bulkActivate()">
+                    <i class="fas fa-check me-1"></i>Activate
+                </button>
+                <button class="btn btn-warning btn-sm" onclick="bulkSuspend()">
+                    <i class="fas fa-pause me-1"></i>Suspend
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="bulkDelete()">
+                    <i class="fas fa-trash me-1"></i>Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.admin-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.admin-container.with-nav {
+    margin-left: 250px;
+    margin-top: 0;
+}
+
+.admin-header {
+    margin-bottom: 2rem;
+}
+
+.admin-header h1 {
+    color: #2d3748;
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.admin-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.user-stats {
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.stat-primary .stat-icon {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.stat-success .stat-icon {
+    background: linear-gradient(135deg, #48bb78, #38a169);
+}
+
+.stat-warning .stat-icon {
+    background: linear-gradient(135deg, #ed8936, #dd6b20);
+}
+
+.stat-info .stat-icon {
+    background: linear-gradient(135deg, #4299e1, #3182ce);
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    color: #718096;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.filters-section {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filter-label {
+    font-weight: 600;
+    color: #4a5568;
+    font-size: 0.9rem;
+}
+
+.search-box {
+    position: relative;
+}
+
+.search-box input {
+    padding-right: 2.5rem;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.search-box i {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+}
+
+.admin-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f7fafc;
+}
+
+.card-header h3 {
+    color: #2d3748;
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.view-options {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.view-options .btn.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+.card-body {
+    padding: 0;
+}
+
+.users-table-container {
+    overflow-x: auto;
+}
+
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+}
+
+.users-table th {
+    background: #f7fafc;
+    color: #4a5568;
+    font-weight: 600;
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 2px solid #e2e8f0;
+    font-size: 0.9rem;
+}
+
+.users-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: middle;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.user-details h6 {
+    margin: 0;
+    color: #2d3748;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.user-details p {
+    margin: 0;
+    color: #718096;
+    font-size: 0.8rem;
+}
+
+.user-role {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.role-client {
+    background: #e6fffa;
+    color: #319795;
+}
+
+.role-admin {
+    background: #fef5e7;
+    color: #d69e2e;
+}
+
+.user-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.status-active {
+    background: #f0fff4;
+    color: #38a169;
+}
+
+.status-inactive {
+    background: #fed7d7;
+    color: #e53e3e;
+}
+
+.status-suspended {
+    background: #fef5e7;
+    color: #d69e2e;
+}
+
+.user-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-action {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.8rem;
+}
+
+.btn-view {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.btn-view:hover {
+    background: #3b82f6;
+    color: white;
+}
+
+.btn-edit {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.btn-edit:hover {
+    background: #10b981;
+    color: white;
+}
+
+.btn-delete {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.btn-delete:hover {
+    background: #ef4444;
+    color: white;
+}
+
+.users-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    padding: 2rem;
+}
+
+.user-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.user-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.user-card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.user-card-avatar {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.user-card-info h5 {
+    margin: 0 0 0.25rem 0;
+    color: #2d3748;
+    font-weight: 600;
+}
+
+.user-card-info p {
+    margin: 0;
+    color: #718096;
+    font-size: 0.9rem;
+}
+
+.user-card-body {
+    margin-bottom: 1rem;
+}
+
+.user-card-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.user-card-detail {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.user-card-detail span:first-child {
+    color: #718096;
+}
+
+.user-card-detail span:last-child {
+    color: #2d3748;
+    font-weight: 500;
+}
+
+.user-card-footer {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+.bulk-actions {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    z-index: 1000;
+}
+
+.bulk-actions-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+}
+
+.selected-count {
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.bulk-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .admin-header .d-flex {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .admin-actions {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-container {
+        padding: 1rem;
+    }
+    
+    .filters-section .row {
+        flex-direction: column;
+    }
+    
+    .users-cards-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .bulk-actions-content {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+</style>
+
+<script>
+// Load users data
+document.addEventListener('DOMContentLoaded', function() {
+    loadUsers();
+    loadUserStats();
+});
+
+async function loadUsers() {
+    try {
+        // Simulate users data
+        const users = [
+            {
+                id: 1,
+                name: 'Sarah Johnson',
+                email: 'sarah@example.com',
+                role: 'client',
+                status: 'active',
+                joinDate: '2024-01-01',
+                lastLogin: '2024-01-15',
+                phone: '+1 234 567 8900',
+                bookings: 5
+            },
+            {
+                id: 2,
+                name: 'Michael Chen',
+                email: 'michael@example.com',
+                role: 'client',
+                status: 'active',
+                joinDate: '2024-01-05',
+                lastLogin: '2024-01-14',
+                phone: '+1 234 567 8901',
+                bookings: 3
+            },
+            {
+                id: 3,
+                name: 'Emily Rodriguez',
+                email: 'emily@example.com',
+                role: 'client',
+                status: 'inactive',
+                joinDate: '2023-12-20',
+                lastLogin: '2024-01-10',
+                phone: '+1 234 567 8902',
+                bookings: 8
+            },
+            {
+                id: 4,
+                name: 'Admin User',
+                email: 'admin@skinsense.com',
+                role: 'admin',
+                status: 'active',
+                joinDate: '2023-01-01',
+                lastLogin: '2024-01-15',
+                phone: '+1 234 567 8903',
+                bookings: 0
+            }
+        ];
+        
+        displayUsers(users);
+        
+    } catch (error) {
+        console.error('Error loading users:', error);
+        showNotification('Failed to load users', 'error');
+    }
+}
+
+function displayUsers(users) {
+    displayUsersTable(users);
+    displayUsersCards(users);
+}
+
+function displayUsersTable(users) {
+    const tbody = document.getElementById('usersTableBody');
+    tbody.innerHTML = '';
+    
+    users.forEach(user => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>
+                <input type="checkbox" class="user-checkbox" value="${user.id}" onchange="updateBulkUserActions()">
+            </td>
+            <td>
+                <div class="user-info">
+                    <div class="user-avatar">
+                        ${user.name.charAt(0)}
+                    </div>
+                    <div class="user-details">
+                        <h6>${user.name}</h6>
+                        <p>${user.phone}</p>
+                    </div>
+                </div>
+            </td>
+            <td>${user.email}</td>
+            <td>
+                <span class="user-role role-${user.role}">
+                    ${user.role}
+                </span>
+            </td>
+            <td>
+                <span class="user-status status-${user.status}">
+                    ${user.status}
+                </span>
+            </td>
+            <td>${formatDate(user.joinDate)}</td>
+            <td>${formatDate(user.lastLogin)}</td>
+            <td>
+                <div class="user-actions">
+                    <button class="btn-action btn-view" onclick="viewUser(${user.id})" title="View">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn-action btn-edit" onclick="editUser(${user.id})" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-action btn-delete" onclick="deleteUser(${user.id})" title="Delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function displayUsersCards(users) {
+    const grid = document.getElementById('usersCardsGrid');
+    grid.innerHTML = '';
+    
+    users.forEach(user => {
+        const card = document.createElement('div');
+        card.className = 'user-card';
+        card.innerHTML = `
+            <div class="user-card-header">
+                <div class="user-card-avatar">
+                    ${user.name.charAt(0)}
+                </div>
+                <div class="user-card-info">
+                    <h5>${user.name}</h5>
+                    <p>${user.email}</p>
+                </div>
+            </div>
+            <div class="user-card-body">
+                <div class="user-card-details">
+                    <div class="user-card-detail">
+                        <span>Role:</span>
+                        <span class="user-role role-${user.role}">${user.role}</span>
+                    </div>
+                    <div class="user-card-detail">
+                        <span>Status:</span>
+                        <span class="user-status status-${user.status}">${user.status}</span>
+                    </div>
+                    <div class="user-card-detail">
+                        <span>Phone:</span>
+                        <span>${user.phone}</span>
+                    </div>
+                    <div class="user-card-detail">
+                        <span>Bookings:</span>
+                        <span>${user.bookings}</span>
+                    </div>
+                    <div class="user-card-detail">
+                        <span>Join Date:</span>
+                        <span>${formatDate(user.joinDate)}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="user-card-footer">
+                <button class="btn btn-sm btn-outline-primary" onclick="viewUser(${user.id})">
+                    <i class="fas fa-eye me-1"></i>View
+                </button>
+                <button class="btn btn-sm btn-outline-success" onclick="editUser(${user.id})">
+                    <i class="fas fa-edit me-1"></i>Edit
+                </button>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteUser(${user.id})">
+                    <i class="fas fa-trash me-1"></i>Delete
+                </button>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+async function loadUserStats() {
+    try {
+        // Simulate stats data
+        const stats = {
+            totalUsers: 156,
+            totalClients: 152,
+            totalAdmins: 4,
+            activeUsers: 142
+        };
+        
+        document.getElementById('totalUsers').textContent = stats.totalUsers;
+        document.getElementById('totalClients').textContent = stats.totalClients;
+        document.getElementById('totalAdmins').textContent = stats.totalAdmins;
+        document.getElementById('activeUsers').textContent = stats.activeUsers;
+        
+    } catch (error) {
+        console.error('Error loading user stats:', error);
+    }
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+function toggleSelectAllUsers() {
+    const selectAll = document.getElementById('selectAllUsers');
+    const checkboxes = document.querySelectorAll('.user-checkbox');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+    });
+    
+    updateBulkUserActions();
+}
+
+function updateBulkUserActions() {
+    const checkboxes = document.querySelectorAll('.user-checkbox:checked');
+    const bulkActions = document.getElementById('bulkUserActions');
+    const selectedCount = document.querySelector('.bulk-actions-content .selected-count');
+    
+    if (checkboxes.length > 0) {
+        bulkActions.style.display = 'block';
+        selectedCount.textContent = `${checkboxes.length} user${checkboxes.length > 1 ? 's' : ''} selected`;
+    } else {
+        bulkActions.style.display = 'none';
+    }
+}
+
+function toggleView(view) {
+    const tableView = document.getElementById('tableView');
+    const cardsView = document.getElementById('cardsView');
+    const buttons = document.querySelectorAll('.view-options .btn');
+    
+    buttons.forEach(btn => btn.classList.remove('active'));
+    
+    if (view === 'table') {
+        tableView.style.display = 'block';
+        cardsView.style.display = 'none';
+        buttons[0].classList.add('active');
+    } else {
+        tableView.style.display = 'none';
+        cardsView.style.display = 'block';
+        buttons[1].classList.add('active');
+    }
+}
+
+function applyFilters() {
+    // Implement filter functionality
+    showNotification('Filter functionality coming soon', 'info');
+}
+
+function exportUsers() {
+    // Implement export functionality
+    showNotification('Export functionality coming soon', 'info');
+}
+
+function viewUser(id) {
+    // Implement view user functionality
+    showNotification(`View user ${id} functionality coming soon`, 'info');
+}
+
+function editUser(id) {
+    // Implement edit user functionality
+    showNotification(`Edit user ${id} functionality coming soon`, 'info');
+}
+
+function deleteUser(id) {
+    if (confirm('Are you sure you want to delete this user?')) {
+        // Implement delete functionality
+        showNotification(`Delete user ${id} functionality coming soon`, 'info');
+    }
+}
+
+function bulkActivate() {
+    const selected = document.querySelectorAll('.user-checkbox:checked');
+    showNotification(`Activate ${selected.length} users functionality coming soon`, 'info');
+}
+
+function bulkSuspend() {
+    const selected = document.querySelectorAll('.user-checkbox:checked');
+    showNotification(`Suspend ${selected.length} users functionality coming soon`, 'info');
+}
+
+function bulkDelete() {
+    const selected = document.querySelectorAll('.user-checkbox:checked');
+    if (confirm(`Are you sure you want to delete ${selected.length} users?`)) {
+        showNotification(`Delete ${selected.length} users functionality coming soon`, 'info');
+    }
+}
+
+// Notification function
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        z-index: 9999;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.transform = 'translateX(0)';
+    }, 100);
+    
+    setTimeout(() => {
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 3000);
+}
+</script>
+
+</body>
+</html>

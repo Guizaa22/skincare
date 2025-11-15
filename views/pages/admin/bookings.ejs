@@ -1,0 +1,880 @@
+<%- include('../../partials/admin-header', {title: 'Manage Bookings - SkinSense', description: 'Admin panel for managing appointments and bookings.'}) %>
+
+<%- include('../../partials/admin-nav', {currentPage: 'bookings'}) %>
+
+<!-- Admin Bookings Management -->
+<div class="admin-container with-nav">
+    <div class="admin-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-calendar-alt me-3"></i>Manage Bookings</h1>
+                <p class="text-muted">View, manage, and schedule appointments for your clients</p>
+            </div>
+            <div class="admin-actions">
+                <a href="/admin/bookings/new" class="btn btn-success">
+                    <i class="fas fa-plus me-2"></i>New Booking
+                </a>
+                <button class="btn btn-outline-primary" onclick="exportBookings()">
+                    <i class="fas fa-download me-2"></i>Export
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="filters-section">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <div class="filter-group">
+                    <label class="filter-label">Search</label>
+                    <div class="search-box">
+                        <input type="text" id="bookingSearch" placeholder="Search bookings..." class="form-control">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="filter-group">
+                    <label class="filter-label">Status</label>
+                    <select id="statusFilter" class="form-select">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="filter-group">
+                    <label class="filter-label">Service</label>
+                    <select id="serviceFilter" class="form-select">
+                        <option value="">All Services</option>
+                        <!-- Services will be loaded here -->
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="filter-group">
+                    <label class="filter-label">Date From</label>
+                    <input type="date" id="dateFrom" class="form-control">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="filter-group">
+                    <label class="filter-label">Date To</label>
+                    <input type="date" id="dateTo" class="form-control">
+                </div>
+            </div>
+            <div class="col-md-1">
+                <div class="filter-group">
+                    <label class="filter-label">&nbsp;</label>
+                    <button class="btn btn-primary w-100" onclick="applyFilters()">
+                        <i class="fas fa-filter"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bookings Table -->
+    <div class="bookings-section">
+        <div class="admin-card">
+            <div class="card-header">
+                <h3><i class="fas fa-list me-2"></i>All Bookings</h3>
+                <div class="card-actions">
+                    <div class="view-toggle">
+                        <button class="btn btn-sm btn-outline-primary active" onclick="toggleView('table')">
+                            <i class="fas fa-table"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary" onclick="toggleView('calendar')">
+                            <i class="fas fa-calendar"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Table View -->
+                <div id="tableView" class="view-content">
+                    <div class="bookings-table-container">
+                        <table class="table bookings-table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                                    </th>
+                                    <th>Client</th>
+                                    <th>Service</th>
+                                    <th>Date & Time</th>
+                                    <th>Duration</th>
+                                    <th>Status</th>
+                                    <th>Total</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bookingsTableBody">
+                                <!-- Bookings will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Calendar View -->
+                <div id="calendarView" class="view-content" style="display: none;">
+                    <div class="calendar-container">
+                        <div class="calendar-header">
+                            <button class="btn btn-outline-primary" onclick="previousMonth()">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <h4 id="calendarMonth">January 2024</h4>
+                            <button class="btn btn-outline-primary" onclick="nextMonth()">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                        <div class="calendar-grid" id="calendarGrid">
+                            <!-- Calendar will be generated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Actions -->
+    <div class="bulk-actions" id="bulkActions" style="display: none;">
+        <div class="bulk-actions-content">
+            <span class="selected-count">0 bookings selected</span>
+            <div class="bulk-buttons">
+                <button class="btn btn-success btn-sm" onclick="bulkConfirm()">
+                    <i class="fas fa-check me-1"></i>Confirm
+                </button>
+                <button class="btn btn-warning btn-sm" onclick="bulkReschedule()">
+                    <i class="fas fa-clock me-1"></i>Reschedule
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="bulkCancel()">
+                    <i class="fas fa-times me-1"></i>Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.admin-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.admin-container.with-nav {
+    margin-left: 250px;
+    margin-top: 0;
+}
+
+.admin-header {
+    margin-bottom: 2rem;
+}
+
+.admin-header h1 {
+    color: #2d3748;
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.admin-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.filters-section {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filter-label {
+    font-weight: 600;
+    color: #4a5568;
+    font-size: 0.9rem;
+}
+
+.search-box {
+    position: relative;
+}
+
+.search-box input {
+    padding-right: 2.5rem;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.search-box i {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+}
+
+.admin-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f7fafc;
+}
+
+.card-header h3 {
+    color: #2d3748;
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.view-toggle {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.view-toggle .btn.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+.card-body {
+    padding: 0;
+}
+
+.bookings-table-container {
+    overflow-x: auto;
+}
+
+.bookings-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+}
+
+.bookings-table th {
+    background: #f7fafc;
+    color: #4a5568;
+    font-weight: 600;
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 2px solid #e2e8f0;
+    font-size: 0.9rem;
+}
+
+.bookings-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: middle;
+}
+
+.booking-client {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.client-avatar {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.9rem;
+}
+
+.client-info h6 {
+    margin: 0;
+    color: #2d3748;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.client-info p {
+    margin: 0;
+    color: #718096;
+    font-size: 0.8rem;
+}
+
+.booking-datetime {
+    display: flex;
+    flex-direction: column;
+}
+
+.booking-date {
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.booking-time {
+    color: #718096;
+    font-size: 0.8rem;
+}
+
+.booking-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.status-pending {
+    background: #fef5e7;
+    color: #d69e2e;
+}
+
+.status-confirmed {
+    background: #f0fff4;
+    color: #38a169;
+}
+
+.status-completed {
+    background: #e6fffa;
+    color: #319795;
+}
+
+.status-cancelled {
+    background: #fed7d7;
+    color: #e53e3e;
+}
+
+.booking-total {
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.booking-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-action {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.8rem;
+}
+
+.btn-view {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.btn-view:hover {
+    background: #3b82f6;
+    color: white;
+}
+
+.btn-edit {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.btn-edit:hover {
+    background: #10b981;
+    color: white;
+}
+
+.btn-delete {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.btn-delete:hover {
+    background: #ef4444;
+    color: white;
+}
+
+.calendar-container {
+    padding: 2rem;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.calendar-header h4 {
+    color: #2d3748;
+    font-weight: 600;
+    margin: 0;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background: #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.calendar-day {
+    background: white;
+    padding: 1rem;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.calendar-day-header {
+    font-weight: 600;
+    color: #4a5568;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.calendar-day-number {
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0.5rem;
+}
+
+.calendar-booking {
+    background: #667eea;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.calendar-booking:hover {
+    background: #5a67d8;
+}
+
+.bulk-actions {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    z-index: 1000;
+}
+
+.bulk-actions-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+}
+
+.selected-count {
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.bulk-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .admin-header .d-flex {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .admin-actions {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-container {
+        padding: 1rem;
+    }
+    
+    .filters-section .row {
+        flex-direction: column;
+    }
+    
+    .calendar-grid {
+        grid-template-columns: repeat(1, 1fr);
+    }
+    
+    .bulk-actions-content {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+</style>
+
+<script>
+// Load bookings data
+document.addEventListener('DOMContentLoaded', function() {
+    loadBookings();
+    loadServices();
+});
+
+async function loadBookings() {
+    try {
+        // Simulate bookings data
+        const bookings = [
+            {
+                id: 1,
+                client: {
+                    name: 'Sarah Johnson',
+                    email: 'sarah@example.com',
+                    phone: '+1 234 567 8900'
+                },
+                service: {
+                    name: 'Facial Treatment',
+                    duration: 60,
+                    price: 150
+                },
+                date: '2024-01-15',
+                time: '10:00',
+                status: 'confirmed',
+                total: 150
+            },
+            {
+                id: 2,
+                client: {
+                    name: 'Michael Chen',
+                    email: 'michael@example.com',
+                    phone: '+1 234 567 8901'
+                },
+                service: {
+                    name: 'Acne Treatment',
+                    duration: 90,
+                    price: 200
+                },
+                date: '2024-01-15',
+                time: '14:00',
+                status: 'pending',
+                total: 200
+            },
+            {
+                id: 3,
+                client: {
+                    name: 'Emily Rodriguez',
+                    email: 'emily@example.com',
+                    phone: '+1 234 567 8902'
+                },
+                service: {
+                    name: 'Anti-Aging Treatment',
+                    duration: 120,
+                    price: 300
+                },
+                date: '2024-01-16',
+                time: '11:00',
+                status: 'completed',
+                total: 300
+            }
+        ];
+        
+        displayBookings(bookings);
+        
+    } catch (error) {
+        console.error('Error loading bookings:', error);
+        showNotification('Failed to load bookings', 'error');
+    }
+}
+
+function displayBookings(bookings) {
+    const tbody = document.getElementById('bookingsTableBody');
+    tbody.innerHTML = '';
+    
+    bookings.forEach(booking => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>
+                <input type="checkbox" class="booking-checkbox" value="${booking.id}" onchange="updateBulkActions()">
+            </td>
+            <td>
+                <div class="booking-client">
+                    <div class="client-avatar">
+                        ${booking.client.name.charAt(0)}
+                    </div>
+                    <div class="client-info">
+                        <h6>${booking.client.name}</h6>
+                        <p>${booking.client.email}</p>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div>
+                    <div class="fw-bold">${booking.service.name}</div>
+                    <small class="text-muted">${booking.service.duration} min</small>
+                </div>
+            </td>
+            <td>
+                <div class="booking-datetime">
+                    <div class="booking-date">${formatDate(booking.date)}</div>
+                    <div class="booking-time">${booking.time}</div>
+                </div>
+            </td>
+            <td>${booking.service.duration} min</td>
+            <td>
+                <span class="booking-status status-${booking.status}">
+                    ${booking.status}
+                </span>
+            </td>
+            <td class="booking-total">$${booking.total}</td>
+            <td>
+                <div class="booking-actions">
+                    <button class="btn-action btn-view" onclick="viewBooking(${booking.id})" title="View">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn-action btn-edit" onclick="editBooking(${booking.id})" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-action btn-delete" onclick="deleteBooking(${booking.id})" title="Delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+async function loadServices() {
+    try {
+        // Simulate services data
+        const services = [
+            { id: 1, name: 'Facial Treatment' },
+            { id: 2, name: 'Acne Treatment' },
+            { id: 3, name: 'Anti-Aging Treatment' },
+            { id: 4, name: 'Chemical Peel' },
+            { id: 5, name: 'Microdermabrasion' }
+        ];
+        
+        const select = document.getElementById('serviceFilter');
+        services.forEach(service => {
+            const option = document.createElement('option');
+            option.value = service.id;
+            option.textContent = service.name;
+            select.appendChild(option);
+        });
+        
+    } catch (error) {
+        console.error('Error loading services:', error);
+    }
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+        weekday: 'short',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+function toggleSelectAll() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.booking-checkbox');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+    });
+    
+    updateBulkActions();
+}
+
+function updateBulkActions() {
+    const checkboxes = document.querySelectorAll('.booking-checkbox:checked');
+    const bulkActions = document.getElementById('bulkActions');
+    const selectedCount = document.querySelector('.selected-count');
+    
+    if (checkboxes.length > 0) {
+        bulkActions.style.display = 'block';
+        selectedCount.textContent = `${checkboxes.length} booking${checkboxes.length > 1 ? 's' : ''} selected`;
+    } else {
+        bulkActions.style.display = 'none';
+    }
+}
+
+function toggleView(view) {
+    const tableView = document.getElementById('tableView');
+    const calendarView = document.getElementById('calendarView');
+    const buttons = document.querySelectorAll('.view-toggle .btn');
+    
+    buttons.forEach(btn => btn.classList.remove('active'));
+    
+    if (view === 'table') {
+        tableView.style.display = 'block';
+        calendarView.style.display = 'none';
+        buttons[0].classList.add('active');
+    } else {
+        tableView.style.display = 'none';
+        calendarView.style.display = 'block';
+        buttons[1].classList.add('active');
+        generateCalendar();
+    }
+}
+
+function generateCalendar() {
+    // Simple calendar generation - you can enhance this
+    const calendarGrid = document.getElementById('calendarGrid');
+    const currentDate = new Date();
+    const month = currentDate.getMonth();
+    const year = currentDate.getFullYear();
+    
+    const monthNames = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    
+    document.getElementById('calendarMonth').textContent = `${monthNames[month]} ${year}`;
+    
+    // Generate calendar days (simplified)
+    calendarGrid.innerHTML = '';
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dayElement = document.createElement('div');
+        dayElement.className = 'calendar-day';
+        dayElement.innerHTML = `
+            <div class="calendar-day-number">${day}</div>
+            ${day % 3 === 0 ? '<div class="calendar-booking">10:00 AM - Facial</div>' : ''}
+            ${day % 5 === 0 ? '<div class="calendar-booking">2:00 PM - Acne Treatment</div>' : ''}
+        `;
+        calendarGrid.appendChild(dayElement);
+    }
+}
+
+function previousMonth() {
+    // Implement previous month navigation
+    showNotification('Previous month functionality coming soon', 'info');
+}
+
+function nextMonth() {
+    // Implement next month navigation
+    showNotification('Next month functionality coming soon', 'info');
+}
+
+function applyFilters() {
+    // Implement filter functionality
+    showNotification('Filter functionality coming soon', 'info');
+}
+
+function exportBookings() {
+    // Implement export functionality
+    showNotification('Export functionality coming soon', 'info');
+}
+
+function viewBooking(id) {
+    // Implement view booking functionality
+    showNotification(`View booking ${id} functionality coming soon`, 'info');
+}
+
+function editBooking(id) {
+    // Implement edit booking functionality
+    showNotification(`Edit booking ${id} functionality coming soon`, 'info');
+}
+
+function deleteBooking(id) {
+    if (confirm('Are you sure you want to delete this booking?')) {
+        // Implement delete functionality
+        showNotification(`Delete booking ${id} functionality coming soon`, 'info');
+    }
+}
+
+function bulkConfirm() {
+    const selected = document.querySelectorAll('.booking-checkbox:checked');
+    showNotification(`Confirm ${selected.length} bookings functionality coming soon`, 'info');
+}
+
+function bulkReschedule() {
+    const selected = document.querySelectorAll('.booking-checkbox:checked');
+    showNotification(`Reschedule ${selected.length} bookings functionality coming soon`, 'info');
+}
+
+function bulkCancel() {
+    const selected = document.querySelectorAll('.booking-checkbox:checked');
+    if (confirm(`Are you sure you want to cancel ${selected.length} bookings?`)) {
+        showNotification(`Cancel ${selected.length} bookings functionality coming soon`, 'info');
+    }
+}
+
+// Notification function
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        z-index: 9999;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.transform = 'translateX(0)';
+    }, 100);
+    
+    setTimeout(() => {
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 3000);
+}
+</script>
+
+</body>
+</html>
