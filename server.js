@@ -1,16 +1,16 @@
+// Load environment variables FIRST (before any other requires)
+require('dotenv').config();
+
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
-const MongoStore = require('connect-mongo');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
 const passport = require('./config/passport');
-require('dotenv').config();
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -18,25 +18,28 @@ const bookingRoutes = require('./routes/bookings');
 const serviceRoutes = require('./routes/services');
 const indexRoutes = require('./routes/index');
 
-// Import database configuration
+// Import MongoDB database configuration
 const connectDB = require('./config/database');
 
 const app = express();
 
-// Connect to MongoDB Atlas database
-connectDB().catch(error => {
-  console.log('Database connection failed, continuing in static mode...');
-});
+// Connect to MongoDB database
+connectDB();
 
 // Trust proxy for rate limiting
 app.set('trust proxy', 1);
 
-// Rate limiting
+// Rate limiting (more lenient for development)
 const limiter = rateLimit({
   windowMs: process.env.RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000, // 15 minutes
-  max: process.env.RATE_LIMIT_MAX_REQUESTS || 100, // limit each IP to 100 requests per windowMs
+  max: process.env.RATE_LIMIT_MAX_REQUESTS || 1000, // Increased to 1000 for testing
   message: {
     error: 'Too many requests from this IP, please try again later.'
+  },
+  skip: (req) => {
+    // Skip rate limiting in development for localhost
+    return process.env.NODE_ENV === 'development' && 
+           (req.ip === '127.0.0.1' || req.ip === '::1' || req.ip === '::ffff:127.0.0.1');
   }
 });
 
@@ -95,6 +98,29 @@ app.use(session({
 // Initialize Passport
 app.use(passport.initialize());
 app.use(passport.session());
+
+// Make user available to all views
+app.use(async (req, res, next) => {
+  res.locals.user = null;
+  
+  // Check for token in cookie
+  const token = req.cookies.token;
+  if (token) {
+    try {
+      const jwt = require('jsonwebtoken');
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const User = require('./models/User');
+      const user = await User.findById(decoded.id).select('-password');
+      if (user && user.isActive) {
+        res.locals.user = user;
+        req.user = user;
+      }
+    } catch (error) {
+      // Token invalid, continue without user
+    }
+  }
+  next();
+});
 
 // Set view engine
 app.set('view engine', 'ejs');

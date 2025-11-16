@@ -448,12 +448,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function loadServices() {
     try {
-        const response = await fetch('/api/services');
+        const response = await fetch('/api/services?limit=1000'); // Get all services for admin
         const data = await response.json();
         
         if (data.success) {
-            displayServices(data.data);
-            updateStatistics(data.data);
+            const services = data.data.services || data.data || [];
+            displayServices(services);
+            updateStatistics(services);
         } else {
             showNotification('Failed to load services', 'error');
         }
@@ -467,8 +468,14 @@ function displayServices(services) {
     const tbody = document.getElementById('servicesTableBody');
     tbody.innerHTML = '';
     
+    if (!services || services.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4">No services found. <a href="/admin/services/new">Add your first service</a></td></tr>';
+        return;
+    }
+    
     services.forEach(service => {
         const row = document.createElement('tr');
+        const serviceId = service._id || service.id;
         row.innerHTML = 
             '<td>' +
                 '<div class="service-info">' +
@@ -482,7 +489,7 @@ function displayServices(services) {
                 '</div>' +
             '</td>' +
             '<td>' +
-                '<span class="badge bg-light text-dark">' + (service.category || 'General') + '</span>' +
+                '<span class="badge bg-light text-dark">' + formatCategory(service.category) + '</span>' +
             '</td>' +
             '<td>' +
                 '<strong class="text-primary">$' + service.price + '</strong>' +
@@ -495,19 +502,35 @@ function displayServices(services) {
             '</td>' +
             '<td>' +
                 '<div class="action-buttons-table">' +
-                    '<button class="btn-table btn-view" onclick="viewService(\'' + service._id + '\')" title="View">' +
+                    '<button class="btn-table btn-view" onclick="viewService(\'' + serviceId + '\')" title="View">' +
                         '<i class="fas fa-eye"></i>' +
                     '</button>' +
-                    '<button class="btn-table btn-edit" onclick="editService(\'' + service._id + '\')" title="Edit">' +
+                    '<button class="btn-table btn-edit" onclick="editService(\'' + serviceId + '\')" title="Edit">' +
                         '<i class="fas fa-edit"></i>' +
                     '</button>' +
-                    '<button class="btn-table btn-delete" onclick="deleteService(\'' + service._id + '\')" title="Delete">' +
+                    '<button class="btn-table btn-delete" onclick="deleteService(\'' + serviceId + '\')" title="Delete">' +
                         '<i class="fas fa-trash"></i>' +
                     '</button>' +
                 '</div>' +
             '</td>';
         tbody.appendChild(row);
     });
+}
+
+function formatCategory(category) {
+    const categoryMap = {
+        'facial-treatments': 'Facial Treatments',
+        'body-treatments': 'Body Treatments',
+        'anti-aging': 'Anti-Aging',
+        'acne-treatments': 'Acne Treatments',
+        'skin-analysis': 'Skin Analysis',
+        'chemical-peels': 'Chemical Peels',
+        'microdermabrasion': 'Microdermabrasion',
+        'laser-treatments': 'Laser Treatments',
+        'consultation': 'Consultation',
+        'packages': 'Packages'
+    };
+    return categoryMap[category] || category;
 }
 
 function updateStatistics(services) {

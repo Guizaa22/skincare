@@ -42,7 +42,7 @@ const router = express.Router();
 
 // Public routes
 router.post('/register', 
-  actionRateLimit('register', 15 * 60 * 1000, 3), // 3 attempts per 15 minutes
+  actionRateLimit('register', 15 * 60 * 1000, 50), // Increased to 50 for testing
   validateRegister,
   handleValidationErrors,
   register
@@ -83,7 +83,7 @@ router.post('/test-login', async (req, res) => {
 });
 
 router.post('/login',
-  actionRateLimit('login', 15 * 60 * 1000, 5), // 5 attempts per 15 minutes
+  actionRateLimit('login', 15 * 60 * 1000, 50), // Increased to 50 for testing
   validateLogin,
   handleValidationErrors,
   login
@@ -92,8 +92,13 @@ router.post('/login',
 router.get('/logout', logout);
 
 // Google OAuth routes (only if configured)
-if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET &&
-    process.env.GOOGLE_CLIENT_ID.trim() !== '' && process.env.GOOGLE_CLIENT_SECRET.trim() !== '') {
+const isGoogleConfigured = process.env.GOOGLE_CLIENT_ID && 
+                            process.env.GOOGLE_CLIENT_SECRET &&
+                            process.env.GOOGLE_CLIENT_ID.trim() !== '' && 
+                            process.env.GOOGLE_CLIENT_SECRET.trim() !== '' &&
+                            process.env.GOOGLE_CLIENT_ID !== 'your_google_client_id_here';
+
+if (isGoogleConfigured) {
   router.get('/google',
     passport.authenticate('google', {
       scope: ['profile', 'email']

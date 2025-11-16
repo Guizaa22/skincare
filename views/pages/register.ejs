@@ -132,6 +132,9 @@
             </button>
         </form>
 
+        <% if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && 
+                process.env.GOOGLE_CLIENT_ID.trim() !== '' && 
+                process.env.GOOGLE_CLIENT_SECRET.trim() !== '') { %>
         <div class="auth-divider">
             <span>or</span>
         </div>
@@ -145,6 +148,12 @@
             </svg>
             Continue with Google
         </a>
+        <% } else { %>
+        <div class="google-notice">
+            <i class="fas fa-info-circle"></i>
+            <p>Google registration not available. Use email/password to create an account.</p>
+        </div>
+        <% } %>
 
         <div class="auth-footer">
             <p>Already have an account? <a href="/login">Sign in here</a></p>
@@ -386,6 +395,30 @@
 
 .auth-footer a:hover {
     text-decoration: underline;
+}
+
+.google-notice {
+    text-align: center;
+    padding: 1rem;
+    background: #f7fafc;
+    border: 2px dashed #cbd5e0;
+    border-radius: 8px;
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.google-notice i {
+    color: #667eea;
+    font-size: 1.5rem;
+}
+
+.google-notice p {
+    color: #666;
+    margin: 0;
+    font-size: 0.9rem;
 }
 </style>
 

@@ -476,6 +476,40 @@ router.get('/admin/services', protect, authorize('admin'), (req, res) => {
   });
 });
 
+// Service form routes
+router.get('/admin/services/new', protect, authorize('admin'), (req, res) => {
+  res.render('pages/admin/service-form', {
+    title: 'Add New Service - SkinSense',
+    user: req.user,
+    service: null
+  });
+});
+
+router.get('/admin/services/:id/edit', protect, authorize('admin'), async (req, res) => {
+  try {
+    const service = await Service.findById(req.params.id);
+    if (!service) {
+      return res.render('pages/error', {
+        title: 'Error',
+        statusCode: 404,
+        message: 'Service not found'
+      });
+    }
+    res.render('pages/admin/service-form', {
+      title: 'Edit Service - SkinSense',
+      user: req.user,
+      service: service
+    });
+  } catch (error) {
+    console.error('Error loading service:', error);
+    res.render('pages/error', {
+      title: 'Error',
+      statusCode: 500,
+      message: 'Failed to load service'
+    });
+  }
+});
+
 router.get('/admin/dashboard', protect, authorize('admin'), (req, res) => {
   res.render('pages/admin/dashboard', {
     title: 'Admin Dashboard - SkinSense',

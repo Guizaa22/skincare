@@ -674,56 +674,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function loadUsers() {
     try {
-        // Simulate users data
-        const users = [
-            {
-                id: 1,
-                name: 'Sarah Johnson',
-                email: 'sarah@example.com',
-                role: 'client',
-                status: 'active',
-                joinDate: '2024-01-01',
-                lastLogin: '2024-01-15',
-                phone: '+1 234 567 8900',
-                bookings: 5
-            },
-            {
-                id: 2,
-                name: 'Michael Chen',
-                email: 'michael@example.com',
-                role: 'client',
-                status: 'active',
-                joinDate: '2024-01-05',
-                lastLogin: '2024-01-14',
-                phone: '+1 234 567 8901',
-                bookings: 3
-            },
-            {
-                id: 3,
-                name: 'Emily Rodriguez',
-                email: 'emily@example.com',
-                role: 'client',
-                status: 'inactive',
-                joinDate: '2023-12-20',
-                lastLogin: '2024-01-10',
-                phone: '+1 234 567 8902',
-                bookings: 8
-            },
-            {
-                id: 4,
-                name: 'Admin User',
-                email: 'admin@skinsense.com',
-                role: 'admin',
-                status: 'active',
-                joinDate: '2023-01-01',
-                lastLogin: '2024-01-15',
-                phone: '+1 234 567 8903',
-                bookings: 0
-            }
-        ];
+        const response = await fetch('/api/admin/users?limit=1000'); // Get all users for admin
+        const data = await response.json();
         
-        displayUsers(users);
-        
+        if (data.success) {
+            const users = data.data.users || data.data || [];
+            displayUsers(users);
+        } else {
+            showNotification('Failed to load users', 'error');
+        }
     } catch (error) {
         console.error('Error loading users:', error);
         showNotification('Failed to load users', 'error');
@@ -739,20 +698,31 @@ function displayUsersTable(users) {
     const tbody = document.getElementById('usersTableBody');
     tbody.innerHTML = '';
     
+    if (!users || users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4">No users found.</td></tr>';
+        return;
+    }
+    
     users.forEach(user => {
         const row = document.createElement('tr');
+        const userId = user._id || user.id;
+        const userStatus = user.isActive ? 'active' : 'inactive';
+        const userPhone = user.phone || 'No phone';
+        const joinDate = user.createdAt || user.joinDate || new Date();
+        const lastLoginDate = user.lastLogin || user.updatedAt || new Date();
+        
         row.innerHTML = `
             <td>
-                <input type="checkbox" class="user-checkbox" value="${user.id}" onchange="updateBulkUserActions()">
+                <input type="checkbox" class="user-checkbox" value="${userId}" onchange="updateBulkUserActions()">
             </td>
             <td>
                 <div class="user-info">
                     <div class="user-avatar">
-                        ${user.name.charAt(0)}
+                        ${user.name.charAt(0).toUpperCase()}
                     </div>
                     <div class="user-details">
                         <h6>${user.name}</h6>
-                        <p>${user.phone}</p>
+                        <p>${userPhone}</p>
                     </div>
                 </div>
             </td>
@@ -763,21 +733,21 @@ function displayUsersTable(users) {
                 </span>
             </td>
             <td>
-                <span class="user-status status-${user.status}">
-                    ${user.status}
+                <span class="user-status status-${userStatus}">
+                    ${userStatus}
                 </span>
             </td>
-            <td>${formatDate(user.joinDate)}</td>
-            <td>${formatDate(user.lastLogin)}</td>
+            <td>${formatDate(joinDate)}</td>
+            <td>${formatDate(lastLoginDate)}</td>
             <td>
                 <div class="user-actions">
-                    <button class="btn-action btn-view" onclick="viewUser(${user.id})" title="View">
+                    <button class="btn-action btn-view" onclick="viewUser('${userId}')" title="View">
                         <i class="fas fa-eye"></i>
                     </button>
-                    <button class="btn-action btn-edit" onclick="editUser(${user.id})" title="Edit">
+                    <button class="btn-action btn-edit" onclick="editUser('${userId}')" title="Edit">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn-action btn-delete" onclick="deleteUser(${user.id})" title="Delete">
+                    <button class="btn-action btn-delete" onclick="deleteUser('${userId}')" title="Delete">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -846,19 +816,16 @@ function displayUsersCards(users) {
 
 async function loadUserStats() {
     try {
-        // Simulate stats data
-        const stats = {
-            totalUsers: 156,
-            totalClients: 152,
-            totalAdmins: 4,
-            activeUsers: 142
-        };
+        const response = await fetch('/api/admin/users/statistics');
+        const data = await response.json();
         
-        document.getElementById('totalUsers').textContent = stats.totalUsers;
-        document.getElementById('totalClients').textContent = stats.totalClients;
-        document.getElementById('totalAdmins').textContent = stats.totalAdmins;
-        document.getElementById('activeUsers').textContent = stats.activeUsers;
-        
+        if (data.success) {
+            const stats = data.data || {};
+            document.getElementById('totalUsers').textContent = stats.totalUsers || 0;
+            document.getElementById('totalClients').textContent = stats.totalClients || 0;
+            document.getElementById('totalAdmins').textContent = stats.totalAdmins || 0;
+            document.getElementById('activeUsers').textContent = stats.activeUsers || 0;
+        }
     } catch (error) {
         console.error('Error loading user stats:', error);
     }

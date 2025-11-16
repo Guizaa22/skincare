@@ -19,52 +19,83 @@ exports.protect = async (req, res, next) => {
       token = req.session.token;
     }
 
+    // Determine if this is a web page request or API request
+    const isApiRequest = req.path.startsWith('/api') || 
+                         req.xhr || 
+                         req.headers.accept?.includes('application/json');
+
     if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: 'Access denied. No token provided.'
-      });
+      if (isApiRequest) {
+        return res.status(401).json({
+          success: false,
+          message: 'Access denied. No token provided.'
+        });
+      }
+      // Redirect to login page for web requests
+      return res.redirect('/login?redirect=' + encodeURIComponent(req.originalUrl));
     }
 
     try {
       // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       
-      // Get user from token
+      // Get user from token (exclude password field)
       const user = await User.findById(decoded.id).select('-password');
       
       if (!user) {
-        return res.status(401).json({
-          success: false,
-          message: 'Token is not valid. User not found.'
-        });
+        if (isApiRequest) {
+          return res.status(401).json({
+            success: false,
+            message: 'Token is not valid. User not found.'
+          });
+        }
+        // Clear invalid token and redirect
+        res.clearCookie('token');
+        return res.redirect('/login?error=session_expired');
       }
 
       if (!user.isActive) {
-        return res.status(401).json({
-          success: false,
-          message: 'User account is deactivated.'
-        });
+        if (isApiRequest) {
+          return res.status(401).json({
+            success: false,
+            message: 'User account is deactivated.'
+          });
+        }
+        res.clearCookie('token');
+        return res.redirect('/login?error=account_deactivated');
       }
 
-      // Update last login
-      user.lastLogin = new Date();
-      await user.save({ validateBeforeSave: false });
+      // Update last login (only update every 5 minutes to reduce DB load)
+      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+      if (!user.lastLogin || user.lastLogin < fiveMinutesAgo) {
+        user.lastLogin = new Date();
+        await user.save();
+      }
 
       req.user = user;
       next();
     } catch (error) {
-      return res.status(401).json({
-        success: false,
-        message: 'Token is not valid.'
-      });
+      if (isApiRequest) {
+        return res.status(401).json({
+          success: false,
+          message: 'Token is not valid.'
+        });
+      }
+      // Clear invalid token and redirect
+      res.clearCookie('token');
+      return res.redirect('/login?error=invalid_token');
     }
   } catch (error) {
     console.error('Auth middleware error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error during authentication'
-    });
+    const isApiRequest = req.path.startsWith('/api') || req.xhr;
+    if (isApiRequest) {
+      res.status(500).json({
+        success: false,
+        message: 'Server error during authentication'
+      });
+    } else {
+      res.redirect('/login?error=server_error');
+    }
   }
 };
 

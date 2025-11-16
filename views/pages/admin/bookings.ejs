@@ -554,63 +554,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function loadBookings() {
     try {
-        // Simulate bookings data
-        const bookings = [
-            {
-                id: 1,
-                client: {
-                    name: 'Sarah Johnson',
-                    email: 'sarah@example.com',
-                    phone: '+1 234 567 8900'
-                },
-                service: {
-                    name: 'Facial Treatment',
-                    duration: 60,
-                    price: 150
-                },
-                date: '2024-01-15',
-                time: '10:00',
-                status: 'confirmed',
-                total: 150
-            },
-            {
-                id: 2,
-                client: {
-                    name: 'Michael Chen',
-                    email: 'michael@example.com',
-                    phone: '+1 234 567 8901'
-                },
-                service: {
-                    name: 'Acne Treatment',
-                    duration: 90,
-                    price: 200
-                },
-                date: '2024-01-15',
-                time: '14:00',
-                status: 'pending',
-                total: 200
-            },
-            {
-                id: 3,
-                client: {
-                    name: 'Emily Rodriguez',
-                    email: 'emily@example.com',
-                    phone: '+1 234 567 8902'
-                },
-                service: {
-                    name: 'Anti-Aging Treatment',
-                    duration: 120,
-                    price: 300
-                },
-                date: '2024-01-16',
-                time: '11:00',
-                status: 'completed',
-                total: 300
-            }
-        ];
+        const response = await fetch('/api/bookings?limit=1000'); // Get all bookings for admin
+        const data = await response.json();
         
-        displayBookings(bookings);
-        
+        if (data.success) {
+            const bookings = data.data.bookings || data.data || [];
+            displayBookings(bookings);
+        } else {
+            showNotification('Failed to load bookings', 'error');
+        }
     } catch (error) {
         console.error('Error loading bookings:', error);
         showNotification('Failed to load bookings', 'error');
@@ -621,51 +573,65 @@ function displayBookings(bookings) {
     const tbody = document.getElementById('bookingsTableBody');
     tbody.innerHTML = '';
     
+    if (!bookings || bookings.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4">No bookings found.</td></tr>';
+        return;
+    }
+    
     bookings.forEach(booking => {
         const row = document.createElement('tr');
+        const bookingId = booking._id || booking.id;
+        const clientName = booking.user ? booking.user.name : (booking.clientName || 'Unknown');
+        const clientEmail = booking.user ? booking.user.email : (booking.email || '');
+        const serviceName = booking.service ? booking.service.name : (booking.serviceName || 'Unknown Service');
+        const serviceDuration = booking.service ? booking.service.duration : booking.duration || 60;
+        const appointmentDate = new Date(booking.appointmentDate);
+        const appointmentTime = booking.appointmentTime || '';
+        const totalPrice = booking.totalPrice || booking.price || 0;
+        
         row.innerHTML = `
             <td>
-                <input type="checkbox" class="booking-checkbox" value="${booking.id}" onchange="updateBulkActions()">
+                <input type="checkbox" class="booking-checkbox" value="${bookingId}" onchange="updateBulkActions()">
             </td>
             <td>
                 <div class="booking-client">
                     <div class="client-avatar">
-                        ${booking.client.name.charAt(0)}
+                        ${clientName.charAt(0).toUpperCase()}
                     </div>
                     <div class="client-info">
-                        <h6>${booking.client.name}</h6>
-                        <p>${booking.client.email}</p>
+                        <h6>${clientName}</h6>
+                        <p>${clientEmail}</p>
                     </div>
                 </div>
             </td>
             <td>
                 <div>
-                    <div class="fw-bold">${booking.service.name}</div>
-                    <small class="text-muted">${booking.service.duration} min</small>
+                    <div class="fw-bold">${serviceName}</div>
+                    <small class="text-muted">${serviceDuration} min</small>
                 </div>
             </td>
             <td>
                 <div class="booking-datetime">
-                    <div class="booking-date">${formatDate(booking.date)}</div>
-                    <div class="booking-time">${booking.time}</div>
+                    <div class="booking-date">${formatDate(appointmentDate)}</div>
+                    <div class="booking-time">${appointmentTime}</div>
                 </div>
             </td>
-            <td>${booking.service.duration} min</td>
+            <td>${serviceDuration} min</td>
             <td>
                 <span class="booking-status status-${booking.status}">
                     ${booking.status}
                 </span>
             </td>
-            <td class="booking-total">$${booking.total}</td>
+            <td class="booking-total">$${totalPrice}</td>
             <td>
                 <div class="booking-actions">
-                    <button class="btn-action btn-view" onclick="viewBooking(${booking.id})" title="View">
+                    <button class="btn-action btn-view" onclick="viewBooking('${bookingId}')" title="View">
                         <i class="fas fa-eye"></i>
                     </button>
-                    <button class="btn-action btn-edit" onclick="editBooking(${booking.id})" title="Edit">
+                    <button class="btn-action btn-edit" onclick="editBooking('${bookingId}')" title="Edit">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn-action btn-delete" onclick="deleteBooking(${booking.id})" title="Delete">
+                    <button class="btn-action btn-delete" onclick="deleteBooking('${bookingId}')" title="Delete">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -677,23 +643,19 @@ function displayBookings(bookings) {
 
 async function loadServices() {
     try {
-        // Simulate services data
-        const services = [
-            { id: 1, name: 'Facial Treatment' },
-            { id: 2, name: 'Acne Treatment' },
-            { id: 3, name: 'Anti-Aging Treatment' },
-            { id: 4, name: 'Chemical Peel' },
-            { id: 5, name: 'Microdermabrasion' }
-        ];
+        const response = await fetch('/api/services?limit=1000');
+        const data = await response.json();
         
-        const select = document.getElementById('serviceFilter');
-        services.forEach(service => {
-            const option = document.createElement('option');
-            option.value = service.id;
-            option.textContent = service.name;
-            select.appendChild(option);
-        });
-        
+        if (data.success) {
+            const services = data.data.services || data.data || [];
+            const select = document.getElementById('serviceFilter');
+            services.forEach(service => {
+                const option = document.createElement('option');
+                option.value = service._id || service.id;
+                option.textContent = service.name;
+                select.appendChild(option);
+            });
+        }
     } catch (error) {
         console.error('Error loading services:', error);
     }
